@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Time Trails</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <!-- Load amCharts 5 library and world map data -->
+  <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+  <!-- Use the India-specific world map data so Kashmir is shown fully as part of India -->
+  <script src="https://cdn.amcharts.com/lib/5/geodata/worldIndiaLow.js"></script>
+  <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+</head>
+<body>
+  <h1>Time Trails</h1>
+
+  <!-- Mode toggle for switching between read‑only and edit mode.  In read‑only mode
+       the controls for adding, editing and deleting visits are hidden.  Only
+       when you enter edit mode (after providing the correct key) will the
+       controls and visit list appear.  -->
+  <div class="mode-toggle" style="text-align: center; margin-bottom: 15px;">
+    <button id="toggle-edit">Edit</button>
+  </div>
+
+  <!-- Input controls to add or update a visit.  Wrapped in a container so that
+       we can easily show or hide the entire controls block when switching
+       between edit and read‑only modes.  These controls are hidden by default
+       and shown when edit mode is enabled. -->
+  <div class="controls" id="visit-controls" style="display: none;">
+    <label for="year-select">Year:</label>
+    <!-- Year options will be populated dynamically via JavaScript -->
+    <select id="year-select">
+      <option value="">Select year</option>
+    </select>
+
+    <label for="country-select">Country:</label>
+    <!-- Country options will be populated dynamically from the map data -->
+    <select id="country-select">
+      <option value="">Select country</option>
+    </select>
+
+    <!-- The text of this button is updated in script.js to "Add Visit" or
+         "Update Visit" depending on whether a new record is being created or an
+         existing one is being edited.  -->
+    <button id="add-visit">Add Visit</button>
+  </div>
+
+  <!-- Container for displaying the list of visits when in edit mode.  This
+       includes a table showing the year, country and actions (edit/delete) for
+       each record.  Hidden by default, shown when edit mode is enabled. -->
+  <div id="visit-list-container" style="display: none; margin-top: 15px;">
+    <h2>Your Visits</h2>
+    <table id="visit-list">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Country</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Slider to select a year -->
+  <div class="slider-container">
+    <label for="year-slider">Year: <span id="year-label"></span></label>
+    <input type="range" id="year-slider" value="1985" step="1">
+    <!-- Play/Pause button controls automated playback of the timeline -->
+    <button id="play-button" title="Play timeline">▶</button>
+    <!-- Reset button returns the slider to the start of its range -->
+    <button id="reset-button" title="Reset timeline">⟲</button>
+  </div>
+
+  <!-- Div that will hold the map. A nested label element is used to display
+       visited country names directly on top of the map during playback. -->
+  <div id="chartdiv">
+    <div id="map-label" class="map-label"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

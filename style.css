@@ -1,0 +1,195 @@
+/* Basic styling for the visited countries timeline site */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.controls label {
+  font-weight: bold;
+}
+
+.controls input[type="number"],
+.controls select {
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  min-width: 120px;
+}
+
+.controls button {
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.controls button:hover {
+  background-color: #0056b3;
+}
+
+.slider-container {
+  margin: 20px auto;
+  text-align: center;
+}
+
+/* Style for the visit label that displays country names in the selected year */
+.visit-label {
+  margin-left: 10px;
+  font-weight: bold;
+  font-style: italic;
+  color: #666;
+}
+
+/* Styling for the play info section that displays country names during playback */
+.play-info {
+  margin-top: 10px;
+  font-weight: bold;
+  font-style: italic;
+  color: #333;
+  text-align: center;
+}
+
+.slider-container input[type="range"] {
+  width: 80%;
+  max-width: 600px;
+  margin-top: 10px;
+}
+
+#chartdiv {
+  width: 100%;
+  height: 600px;
+  max-width: 1000px;
+  margin: 0 auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  /* Make the map container relative so that overlay elements inside can be absolutely positioned */
+  position: relative;
+}
+
+/* Overlay label displayed on top of the map during playback */
+.map-label {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-style: italic;
+  color: #333;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+  display: none;
+}
+
+/* Play/Pause button styling */
+#play-button {
+  margin-left: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+#play-button.playing {
+  background-color: #dc3545;
+}
+#play-button:hover {
+  opacity: 0.9;
+}
+
+/* Reset button styling */
+#reset-button {
+  margin-left: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: #6c757d; /* neutral grey tone */
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+#reset-button:hover {
+  opacity: 0.9;
+}
+
+/* Mode toggle button styling */
+.mode-toggle button {
+  padding: 8px 14px;
+  font-size: 14px;
+  background-color: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+.mode-toggle button:hover {
+  opacity: 0.9;
+}
+
+/* Styling for the visit list table that appears in edit mode */
+#visit-list {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+#visit-list th,
+#visit-list td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #ddd;
+}
+#visit-list th {
+  background-color: #f0f0f0;
+  text-align: left;
+  font-weight: bold;
+}
+#visit-list td button {
+  margin-right: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+/* Edit and Delete buttons distinct colors */
+#visit-list td .edit-btn {
+  background-color: #ffc107;
+  color: #333;
+}
+#visit-list td .delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+#visit-list td button:hover {
+  opacity: 0.85;
+}
