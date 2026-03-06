@@ -4,9 +4,7 @@
   <meta charset="UTF-8">
   <title>Time Trails - Private Hosting</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  
-  <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+  <link rel="stylesheet" href="style.css"> <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
   <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
   <script src="https://cdn.amcharts.com/lib/5/geodata/worldIndiaLow.js"></script>
   <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
@@ -19,42 +17,35 @@
   <div id="auth-container" style="text-align: center; margin-top: 50px;">
     <div id="logged-out-ui">
       <h2>Welcome to your personal Time Trail</h2>
-      <p>Please sign in or use a Magic Key to create your account.</p>
-      
       <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <input type="email" id="email" placeholder="Email" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
-        <input type="password" id="password" placeholder="Password" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
+        <input type="email" id="email" placeholder="Email" style="padding: 10px;">
+        <input type="password" id="password" placeholder="Password" style="padding: 10px;">
+        <input type="text" id="magic-key" placeholder="Magic Key (Sign Up only)" style="padding: 10px;">
         
-        <input type="text" id="magic-key" placeholder="Magic Key (for Sign Up only)" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
-        
-        <button id="login-btn" style="padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Login</button>
-        <button id="signup-btn" style="padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Sign Up with Key</button>
+        <button id="login-btn" style="padding: 10px; background-color: #007BFF; color: white; cursor: pointer;">Login</button>
+        <button id="signup-btn" style="padding: 10px; background-color: #28a745; color: white; cursor: pointer;">Sign Up with Key</button>
+        <p id="auth-error" style="display: none; color: #b00020; margin: 0; font-size: 0.9rem;"></p>
       </div>
     </div>
 
     <div id="logged-in-ui" style="display: none;">
       <span id="user-display" style="margin-right: 15px; font-weight: bold;"></span>
-      <button id="logout-btn" style="padding: 8px 12px; border-radius: 4px; cursor: pointer; background-color: #6c757d; color: white; border: none;">Logout</button>
+      <button id="logout-btn" style="padding: 8px 12px; cursor: pointer;">Logout</button>
     </div>
   </div>
 
   <div id="main-app-content" style="display: none;">
     <div class="mode-toggle" style="text-align: center; margin: 15px 0;">
-      <button id="toggle-edit" style="padding: 8px 14px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">Edit My Trail</button>
+      <button id="toggle-edit" style="padding: 8px 14px; background-color: #17a2b8; color: white; cursor: pointer;">Edit My Trail</button>
     </div>
 
-    <div class="controls" id="visit-controls" style="display: none; justify-content: center; gap: 10px; flex-wrap: wrap;">
-      <label for="year-select">Year:</label>
+    <div class="controls" id="visit-controls" style="display: none; justify-content: center; gap: 10px;">
       <select id="year-select"><option value="">Select year</option></select>
-      
-      <label for="country-select">Country:</label>
       <select id="country-select"><option value="">Select country</option></select>
-      
-      <button id="add-visit" style="padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Visit</button>
+      <button id="add-visit" style="padding: 8px 12px; background-color: #28a745; color: white; cursor: pointer;">Add Visit</button>
     </div>
 
     <div id="visit-list-container" style="display: none; max-width: 800px; margin: 20px auto;">
-      <h2>Your Visits</h2>
       <table id="visit-list" style="width: 100%; border-collapse: collapse;">
         <thead><tr style="background-color: #f0f0f0;"><th>Year</th><th>Country</th><th>Actions</th></tr></thead>
         <tbody></tbody>
@@ -63,16 +54,13 @@
 
     <div class="slider-container" style="text-align: center; margin: 20px;">
       <label for="year-slider">Year: <span id="year-label"></span></label><br>
-      <input type="range" id="year-slider" style="width: 80%; max-width: 600px;">
-      <button id="play-button" title="Play timeline">▶</button>
-      <button id="reset-button" title="Reset timeline">⟲</button>
+      <input type="range" id="year-slider" style="width: 80%;">
+      <button id="play-button">▶</button>
+      <button id="reset-button">⟲</button>
     </div>
 
-    <div id="chartdiv" style="width: 100%; height: 600px; position: relative; border: 1px solid #e0e0e0; border-radius: 8px;">
-      <div id="map-label" class="map-label"></div>
-    </div>
+    <div id="chartdiv" style="width: 100%; height: 600px;"></div>
   </div>
 
-  <script src="script.js"></script>
-</body>
+  <script src="script.js"></script> </body>
 </html>
