@@ -2,56 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Time Trails</title>
+  <title>Time Trails - Private Hosting</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  
   <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
   <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
   <script src="https://cdn.amcharts.com/lib/5/geodata/worldIndiaLow.js"></script>
   <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
   <h1>Time Trails</h1>
 
-  <div id="auth-container" style="text-align: center; margin-bottom: 20px;">
+  <div id="auth-container" style="text-align: center; margin-top: 50px;">
     <div id="logged-out-ui">
-      <input type="email" id="email" placeholder="Email" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-      <input type="password" id="password" placeholder="Password" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-      <button id="login-btn" class="controls button" style="background-color: #007BFF; color: white;">Login</button>
-      <button id="signup-btn" class="controls button" style="background-color: #6c757d; color: white;">Sign Up</button>
+      <h2>Welcome to your personal Time Trail</h2>
+      <p>Please sign in or use a Magic Key to create your account.</p>
+      
+      <div style="display: flex; flex-direction: column; gap: 10px; max-width: 300px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <input type="email" id="email" placeholder="Email" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
+        <input type="password" id="password" placeholder="Password" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
+        
+        <input type="text" id="magic-key" placeholder="Magic Key (for Sign Up only)" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc;">
+        
+        <button id="login-btn" style="padding: 10px; background-color: #007BFF; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Login</button>
+        <button id="signup-btn" style="padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Sign Up with Key</button>
+      </div>
     </div>
+
     <div id="logged-in-ui" style="display: none;">
       <span id="user-display" style="margin-right: 15px; font-weight: bold;"></span>
-      <button id="logout-btn" style="padding: 8px; border-radius: 4px; cursor: pointer;">Logout</button>
-      <button id="toggle-edit" style="padding: 8px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">Manage Visits</button>
+      <button id="logout-btn" style="padding: 8px 12px; border-radius: 4px; cursor: pointer; background-color: #6c757d; color: white; border: none;">Logout</button>
     </div>
   </div>
 
-  <div class="controls" id="visit-controls" style="display: none; justify-content: center;">
-    <label for="year-select">Year:</label>
-    <select id="year-select"><option value="">Select year</option></select>
-    <label for="country-select">Country:</label>
-    <select id="country-select"><option value="">Select country</option></select>
-    <button id="add-visit">Add Visit</button>
-  </div>
+  <div id="main-app-content" style="display: none;">
+    <div class="mode-toggle" style="text-align: center; margin: 15px 0;">
+      <button id="toggle-edit" style="padding: 8px 14px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer;">Edit My Trail</button>
+    </div>
 
-  <div id="visit-list-container" style="display: none; max-width: 800px; margin: 20px auto;">
-    <h2>Your Visits</h2>
-    <table id="visit-list">
-      <thead><tr><th>Year</th><th>Country</th><th>Actions</th></tr></thead>
-      <tbody></tbody>
-    </table>
-  </div>
+    <div class="controls" id="visit-controls" style="display: none; justify-content: center; gap: 10px; flex-wrap: wrap;">
+      <label for="year-select">Year:</label>
+      <select id="year-select"><option value="">Select year</option></select>
+      
+      <label for="country-select">Country:</label>
+      <select id="country-select"><option value="">Select country</option></select>
+      
+      <button id="add-visit" style="padding: 8px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Visit</button>
+    </div>
 
-  <div class="slider-container">
-    <label for="year-slider">Year: <span id="year-label"></span></label>
-    <input type="range" id="year-slider" step="1">
-    <button id="play-button" title="Play timeline">▶</button>
-    <button id="reset-button" title="Reset timeline">⟲</button>
-  </div>
+    <div id="visit-list-container" style="display: none; max-width: 800px; margin: 20px auto;">
+      <h2>Your Visits</h2>
+      <table id="visit-list" style="width: 100%; border-collapse: collapse;">
+        <thead><tr style="background-color: #f0f0f0;"><th>Year</th><th>Country</th><th>Actions</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
 
-  <div id="chartdiv"><div id="map-label" class="map-label"></div></div>
+    <div class="slider-container" style="text-align: center; margin: 20px;">
+      <label for="year-slider">Year: <span id="year-label"></span></label><br>
+      <input type="range" id="year-slider" style="width: 80%; max-width: 600px;">
+      <button id="play-button" title="Play timeline">▶</button>
+      <button id="reset-button" title="Reset timeline">⟲</button>
+    </div>
+
+    <div id="chartdiv" style="width: 100%; height: 600px; position: relative; border: 1px solid #e0e0e0; border-radius: 8px;">
+      <div id="map-label" class="map-label"></div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
