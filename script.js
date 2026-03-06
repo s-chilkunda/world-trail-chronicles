@@ -8,7 +8,10 @@
   const countryMap = {};
   let editMode = false;
   let currentUser = null;
+  let refreshVisits = async () => {};
   let root, polygonSeries, defaultColor, visitedPastColor, visitedCurrentColor;
+  let isPlaying = false;
+  let playInterval = null;
 
   function showAuthError(message) {
     const authError = document.getElementById('auth-error');
@@ -28,6 +31,44 @@
     }
   }
 
+  function showAccountError(message) {
+    const accountError = document.getElementById('account-error');
+    if (accountError) {
+      accountError.textContent = message;
+      accountError.style.display = 'block';
+    }
+    // Keep alert for critical destructive-action failures.
+    alert(message);
+  }
+
+  function clearAccountError() {
+    const accountError = document.getElementById('account-error');
+    if (accountError) {
+      accountError.textContent = '';
+      accountError.style.display = 'none';
+    }
+  }
+
+  function parseInvitationValidationResult(data) {
+    if (typeof data === 'boolean') return data;
+    if (Array.isArray(data) && data.length > 0) return parseInvitationValidationResult(data[0]);
+    if (data && typeof data === 'object') {
+      if (typeof data.is_valid === 'boolean') return data.is_valid;
+      if (typeof data.valid === 'boolean') return data.valid;
+      if (typeof data.result === 'boolean') return data.result;
+    }
+    return false;
+  }
+
+  function confirmDestructiveAction(promptText, verificationText) {
+    const firstCheck = confirm(promptText);
+    if (!firstCheck) return false;
+
+    const typed = prompt(`Type "${verificationText}" to confirm.`);
+    if (typed == null) return false;
+    return typed.trim().toLowerCase() === String(verificationText).trim().toLowerCase();
+  }
+
   window.addEventListener('load', async () => {
     // 1. Initialize Supabase Client safely
     if (typeof supabase === 'undefined') {
@@ -44,6 +85,8 @@
     // 2. Map Elements
     const yearSlider = document.getElementById('year-slider');
     const yearLabel = document.getElementById('year-label');
+    const playButton = document.getElementById('play-button');
+    const resetButton = document.getElementById('reset-button');
 
     // --- AUTH LOGIC ---
     async function checkUser() {
@@ -58,6 +101,7 @@
         mainApp.style.display = 'block';
         loggedOut.style.display = 'none';
         loggedIn.style.display = 'block';
+        clearAccountError();
         document.getElementById('user-display').textContent = `User: ${user.email}`;
         loadVisits();
       } else {
@@ -99,21 +143,98 @@
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       const magicKey = document.getElementById('magic-key').value;
+      clearAuthError();
 
-      const { data: isValid, error: rpcError } = await db.rpc('verify_invitation', { 
-        input_email: email, input_key: magicKey 
-      });
+      if (!email || !password || !magicKey) {
+        showAuthError("Please enter email, password, and magic key.");
+        return;
+      }
 
-      if (rpcError || !isValid) return alert("Invalid Magic Key.");
+      const normalizedEmail = email.trim().toLowerCase();
+      const normalizedKey = magicKey.trim();
 
-      const { error: signUpError } = await db.auth.signUp({ email, password });
-      if (signUpError) alert(signUpError.message);
-      else alert("Signup successful! Check email or log in.");
+      try {
+        // Try common RPC parameter names to support different SQL function signatures.
+        let rpcResponse = await db.rpc('verify_invitation', {
+          input_email: normalizedEmail, input_key: normalizedKey
+        });
+
+        if (rpcResponse.error && /function.*verify_invitation/i.test(rpcResponse.error.message || '')) {
+          rpcResponse = await db.rpc('verify_invitation', {
+            email: normalizedEmail, key: normalizedKey
+          });
+        }
+
+        if (rpcResponse.error) {
+          showAuthError("Magic key verification failed: " + rpcResponse.error.message);
+          return;
+        }
+
+        const isValid = parseInvitationValidationResult(rpcResponse.data);
+        if (!isValid) {
+          showAuthError("Invalid Magic Key.");
+          return;
+        }
+
+        const { error: signUpError } = await db.auth.signUp({ email: normalizedEmail, password });
+        if (signUpError) showAuthError("Signup failed: " + signUpError.message);
+        else {
+          clearAuthError();
+          alert("Signup successful! Check email or log in.");
+        }
+      } catch (error) {
+        const message = error && error.message ? error.message : "Unknown signup error";
+        showAuthError("Signup failed: " + message);
+      }
     };
 
     document.getElementById('logout-btn').onclick = async () => {
       await db.auth.signOut();
       location.reload();
+    };
+
+    document.getElementById('delete-account-btn').onclick = async () => {
+      if (!currentUser) {
+        showAccountError("No logged-in user found.");
+        return;
+      }
+
+      clearAuthError();
+      clearAccountError();
+      const verified = confirmDestructiveAction(
+        "This will permanently delete your account and all visits. This cannot be undone.",
+        currentUser.email
+      );
+      if (!verified) {
+        showAccountError("Account deletion cancelled.");
+        return;
+      }
+
+      try {
+        const { data: { session }, error: sessionError } = await db.auth.getSession();
+        if (sessionError || !session?.access_token) {
+          showAccountError("Could not get user session for account deletion.");
+          return;
+        }
+
+        const { error: invokeError } = await db.functions.invoke('delete-account', {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`
+          }
+        });
+
+        if (invokeError) {
+          showAccountError("Account deletion failed: " + invokeError.message);
+          return;
+        }
+
+        await db.auth.signOut();
+        alert("Account deleted.");
+        location.reload();
+      } catch (error) {
+        const message = error && error.message ? error.message : "Unknown account deletion error";
+        showAccountError("Account deletion failed: " + message);
+      }
     };
 
     // --- DATA LOGIC ---
@@ -127,6 +248,7 @@
         renderVisitList();
       }
     }
+    refreshVisits = loadVisits;
 
     document.getElementById('add-visit').onclick = async () => {
       const year = parseInt(document.getElementById('year-select').value);
@@ -143,6 +265,7 @@
         yearSlider.min = Math.min(...years) - 1;
         yearSlider.max = Math.max(...years) + 1;
       }
+      yearSlider.value = yearSlider.min;
       yearLabel.textContent = yearSlider.value;
     }
 
@@ -155,6 +278,15 @@
         past.forEach(c => polygonSeries.getDataItemById(c)?.get('mapPolygon').set('fill', visitedPastColor));
         current.forEach(c => polygonSeries.getDataItemById(c)?.get('mapPolygon').set('fill', visitedCurrentColor));
       }
+    }
+
+    function stopPlayback() {
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+      }
+      isPlaying = false;
+      playButton.textContent = '▶';
     }
 
     am5.ready(() => {
@@ -173,6 +305,34 @@
     });
 
     yearSlider.oninput = () => updateMap(parseInt(yearSlider.value));
+    playButton.onclick = () => {
+      if (isPlaying) {
+        stopPlayback();
+        return;
+      }
+
+      isPlaying = true;
+      playButton.textContent = 'Pause';
+      playInterval = setInterval(() => {
+        const currentYear = parseInt(yearSlider.value);
+        const maxYear = parseInt(yearSlider.max);
+        if (currentYear >= maxYear) {
+          stopPlayback();
+          return;
+        }
+
+        const nextYear = currentYear + 1;
+        yearSlider.value = String(nextYear);
+        updateMap(nextYear);
+      }, 1000);
+    };
+
+    resetButton.onclick = () => {
+      stopPlayback();
+      yearSlider.value = yearSlider.min;
+      updateMap(parseInt(yearSlider.value));
+    };
+
     document.getElementById('toggle-edit').onclick = () => {
       editMode = !editMode;
       document.getElementById('visit-controls').style.display = editMode ? 'flex' : 'none';
@@ -189,7 +349,12 @@
       row.insertCell(1).textContent = countryMap[v.country] || v.country;
       const btn = document.createElement('button');
       btn.textContent = 'Delete';
-      btn.onclick = async () => { if(confirm('Delete?')) { await db.from('visits').delete().eq('id', v.id); loadVisits(); } };
+      btn.onclick = async () => {
+        const verified = confirmDestructiveAction("Delete this visit?", "DELETE");
+        if (!verified) return;
+        await db.from('visits').delete().eq('id', v.id);
+        await refreshVisits();
+      };
       row.insertCell(2).appendChild(btn);
     });
   }

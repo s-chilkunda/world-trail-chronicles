@@ -1,46 +1,147 @@
-# WorldTrail Chronicles
+# World Trail Chronicles
 
-WorldTrail Chronicles is a self‑contained web app for logging and visualising the countries you’ve visited.  
-It combines an interactive world map with a year slider so you can watch your travels unfold over time.  
-Highlighted countries, a play button, random colours and an optional edit mode make it both informative and fun to use.
+World Trail Chronicles is a browser app that shows your country visits on an interactive map timeline.
 
-## Features
+The current implementation uses:
+- Supabase Auth for login/signup
+- a Supabase `visits` table for persisted data
+- a Supabase RPC (`verify_invitation`) to validate the signup magic key
+- amCharts v5 world map for visualization
 
-- **Interactive map and timeline** – Select any year to see which countries you visited.  The current year’s countries are shown in a random highlight colour while past visits fade to a darker grey for contrast.  A play button animates the slider through time so you can watch your travels grow.
-- **Editable visit log** – A password‑protected *Edit* mode lets you add, modify or remove visits.  An “Add Visit” form includes a year drop‑down (1975 – 2035) and a country selector populated from amCharts’ world geodata.  You can also reset the year slider to its starting value or slow down the animation by adjusting a constant in the script.
-- **Dynamic slider range** – The slider automatically adjusts its start and end years based on your data.  It extends two years before the earliest visit and two years after the latest visit so there’s always context at both ends of the timeline.  If there are no visits, it defaults to 1975–2035.
-- **Persistent storage** – All visits are saved to `localStorage` so they persist between sessions.  You can also supply a `visits.json` file with initial data so that anyone who opens the site sees the same timeline you do.  When the page loads it will import the JSON, convert year strings to numbers, merge it into local storage and then update the slider range accordingly.
+## Current Features
 
-## Getting started
+- Email/password login
+- Signup gated by a magic key
+- Inline auth error messages for login/signup failures
+- Account deletion with double confirmation
+- Timeline slider that highlights:
+  - past visited countries (gray)
+  - selected year countries (orange)
+- Edit mode for adding/deleting visits
+- Play/pause and reset timeline controls
 
-1. **Clone or download the repository.**  Unzip the project if necessary and make sure the files `index.html`, `style.css`, `script.js` and (optionally) `visits.json` stay in the same directory.
-2. **Run it locally.**  Modern browsers prevent `fetch()` from loading local files when the page is opened via `file://` URLs.  To avoid CORS issues, serve the files over HTTP.  The simplest way is:
+## Run Locally
 
-   ```sh
-   cd world-trail-chronicles
-   python3 -m http.server 8000
-   ```
+1. Start a static server from the project directory:
 
-   Then visit `http://localhost:8000` in your browser.  The app loads the map, reads any stored visits from `localStorage` or `visits.json`, and calculates the slider range.
-3. **Enter edit mode.**  Click the **Edit** button and enter your secret key (set in `script.js` as `EDIT_KEY`) to unlock the form and visit list.  Add new visits, change existing ones or delete entries as needed.  Changes are stored in your browser’s local storage.  Use the reset button to jump the slider back to the beginning or the play button to animate through the years.
+```sh
+cd /Users/schilkunda-air/Desktop/projects/world-trail-chronicles
+python3 -m http.server 8000
+```
 
-## Sharing your timeline
+2. Open:
 
-Because data saved in `localStorage` is scoped to a single browser and not shared across incognito sessions or other devices, you’ll need to embed your visits into the code or a JSON file if you want others to see them.  To share your timeline:
+`http://localhost:8000`
 
-1. Export your visits from the console with:
+## Configuration
 
-   ```js
-   JSON.stringify(JSON.parse(localStorage.getItem('visits')), null, 2)
-   ```
+Supabase credentials are configured in `script.js`:
 
-   Copy the resulting JSON array.
-2. Save it into `visits.json` in your repository.  The JSON file can be either a top‑level array or an object with a `visits` property; `script.js` will handle either.  If you choose the object form, wrap your array like `{ "visits": [ … ] }`.
-3. Commit the updated `visits.json` file and redeploy your site.  When new visitors load the page, it will import the visits from `visits.json`, save them to `localStorage` and display them immediately.
+- `supabaseUrl`
+- `supabaseKey` (anon/publishable key)
 
-## Customising
+If placeholders are used (`YOUR_PROJECT_ID`, `YOUR_ANON_KEY`), login/signup is intentionally blocked and the UI shows a setup error.
 
-- **Edit key** – Change the `EDIT_KEY` constant near the top of `script.js` to control who can enter edit mode.  This is a simple client‑side check; it only obscures the editing controls.  Real authentication would require a server.
-- **Playback speed** – Adjust the `PLAY_DELAY_MS` constant in `script.js` to change how fast the slider moves during playback.  The default is 1500 ms (1.5 seconds) per step.
-- **Timeline range** – The year drop‑down covers 1980–2030 by default.  To change this range, modify the `populateYearSelect()` function in `script.js`.  The slider’s dynamic range logic will still extend two years beyond the earliest and latest visits.
-- **Colour scheme** – Colours for highlighted countries and visited past years are defined in `script.js`.  The current year uses a random colour while past years use a dark grey; adjust these values in the `updateMap()` function to suit your taste.
+## Required Supabase Setup
+
+### 1. Auth
+
+- Enable Email/Password provider.
+
+### 2. `visits` table
+
+Create a table with at least:
+- `id` (primary key)
+- `user_id` (`uuid`, linked to `auth.users.id`)
+- `year` (`int`)
+- `country` (`text`)
+
+Example:
+
+```sql
+create table if not exists public.visits (
+  id bigserial primary key,
+  user_id uuid not null references auth.users(id) on delete cascade,
+  year int not null,
+  country text not null
+);
+```
+
+### 3. RLS policies
+
+Enable RLS and allow users to read/write only their own rows.
+
+Example:
+
+```sql
+alter table public.visits enable row level security;
+
+create policy "select own visits"
+on public.visits
+for select
+to authenticated
+using (auth.uid() = user_id);
+
+create policy "insert own visits"
+on public.visits
+for insert
+to authenticated
+with check (auth.uid() = user_id);
+
+create policy "delete own visits"
+on public.visits
+for delete
+to authenticated
+using (auth.uid() = user_id);
+```
+
+### 4. `verify_invitation` RPC
+
+Signup calls `verify_invitation` before creating the user.
+
+The frontend currently supports either parameter style:
+- `input_email`, `input_key`
+- `email`, `key`
+
+Return shape can be:
+- `boolean`
+- array/object containing one of: `is_valid`, `valid`, `result` (boolean)
+
+### 5. Account deletion Edge Function
+
+Account deletion is done by `supabase/functions/delete-account/index.ts` and must be deployed.
+
+Deploy steps:
+
+```sh
+supabase login
+supabase link --project-ref prxcpbiztxjxocefxfmh
+supabase functions deploy delete-account
+```
+
+Required function secrets (normally already present in hosted Supabase):
+- `SUPABASE_URL`
+- `SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+## Troubleshooting
+
+- `Login failed: ...`
+  - Check `supabaseUrl`/`supabaseKey`
+  - Confirm Email/Password auth is enabled
+- `Magic key verification failed: ...`
+  - RPC function missing, wrong parameter names, or function error
+- `Invalid Magic Key.`
+  - RPC executed successfully but returned false
+  - Check key value, casing, trimming, and email match
+- Visit data not loading/saving
+  - Verify `visits` table and RLS policies
+- `Account deletion failed: ...`
+  - Deploy `delete-account` Edge Function
+  - Confirm function has `SUPABASE_SERVICE_ROLE_KEY`
+  - Check function logs:
+    - `supabase functions logs delete-account`
+
+## Notes
+
+- Account deletion requires the Edge Function; direct browser calls to Supabase Auth delete endpoints are typically blocked.
