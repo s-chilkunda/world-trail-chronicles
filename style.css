@@ -13,42 +13,6 @@ h1 {
   margin-bottom: 20px;
 }
 
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.controls label {
-  font-weight: bold;
-}
-
-.controls input[type="number"],
-.controls select {
-  padding: 6px 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  min-width: 120px;
-}
-
-.controls button {
-  padding: 8px 12px;
-  font-size: 14px;
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.controls button:hover {
-  background-color: #0056b3;
-}
-
 .slider-container {
   margin: 20px auto;
   text-align: center;
@@ -75,6 +39,57 @@ h1 {
   width: 80%;
   max-width: 600px;
   margin-top: 10px;
+}
+
+/* Container for the counter badge and visited country flags, matching the map width */
+.flag-bar {
+  width: 100%;
+  max-width: 1000px; /* matches #chartdiv width */
+  margin: 0 auto 14px auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 28px;
+}
+
+/* Compact unique countries counter badge next to the flag row */
+#country-counter {
+  flex-shrink: 0;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 3px 10px;
+  min-width: 24px;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+#country-count {
+  color: #007BFF;
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+/* Row of visited country flags between the timeline slider and the map */
+#flag-row {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding-top: 2px;
+}
+
+.country-flag {
+  width: 28px;
+  height: 20px;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  display: block;
 }
 
 #chartdiv {
@@ -140,78 +155,4 @@ h1 {
 }
 #reset-button:hover {
   opacity: 0.9;
-}
-
-/* Mode toggle button styling */
-.mode-toggle button {
-  padding: 8px 14px;
-  font-size: 14px;
-  background-color: #17a2b8;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
-}
-.mode-toggle button:hover {
-  opacity: 0.9;
-}
-
-/* Styling for the visit list table that appears in edit mode */
-#visit-list {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-#visit-list th,
-#visit-list td {
-  padding: 8px 12px;
-  border-bottom: 1px solid #ddd;
-}
-#visit-list th {
-  background-color: #f0f0f0;
-  text-align: left;
-  font-weight: bold;
-}
-#visit-list td button {
-  margin-right: 6px;
-  padding: 4px 8px;
-  font-size: 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-/* Edit and Delete buttons distinct colors */
-#visit-list td .edit-btn {
-  background-color: #ffc107;
-  color: #333;
-}
-#visit-list td .delete-btn {
-  background-color: #dc3545;
-  color: white;
-}
-#visit-list td button:hover {
-  opacity: 0.85;
-}
-
-/* Unique countries counter pinned to the top right */
-#country-counter {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  background-color: rgba(255, 255, 255, 0.92);
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #333;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-#country-count {
-  color: #007BFF;
-  font-size: 16px;
-  margin-left: 4px;
 }
