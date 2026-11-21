@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <title>Time Trails</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <!-- Load amCharts 5 library and world map data -->
   <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
@@ -13,31 +16,43 @@
   <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
 </head>
 <body>
-  <h1>Time Trails</h1>
+  <main class="app-shell">
+    <header class="app-header">
+      <h1>Time Trails</h1>
+    </header>
 
-  <!-- Slider to select a year -->
-  <div class="slider-container">
-    <label for="year-slider">Year: <span id="year-label"></span></label>
-    <input type="range" id="year-slider" value="1985" step="1">
-    <!-- Play/Pause button controls automated playback of the timeline -->
-    <button id="play-button" title="Play timeline">▶</button>
-    <!-- Reset button returns the slider to the start of its range -->
-    <button id="reset-button" title="Reset timeline">⟲</button>
-  </div>
+    <!-- Timeline controls card -->
+    <section class="slider-container" aria-label="Timeline controls">
+      <div class="year-badge" aria-live="polite">
+        <span class="year-caption">Year</span>
+        <span id="year-label">1985</span>
+      </div>
 
-  <!-- Counter and row of flags for every unique country visited up to the selected year -->
-  <div class="flag-bar">
-    <div id="country-counter" aria-live="polite" title="Unique countries visited">
-      <span id="country-count">0</span>
-    </div>
-    <div id="flag-row" aria-label="Visited country flags"></div>
-  </div>
+      <div class="slider-track-wrap">
+        <input type="range" id="year-slider" value="1985" step="1" aria-label="Select year">
+      </div>
 
-  <!-- Div that will hold the map. A nested label element is used to display
-       visited country names directly on top of the map during playback. -->
-  <div id="chartdiv">
-    <div id="map-label" class="map-label"></div>
-  </div>
+      <div class="playback-controls">
+        <button id="play-button" title="Play timeline" aria-label="Play timeline">▶ Play</button>
+        <button id="reset-button" title="Reset timeline" aria-label="Reset timeline">⟲</button>
+      </div>
+    </section>
+
+    <!-- Counter and row of flags for every unique country visited up to the selected year -->
+    <section class="flag-bar" aria-label="Visited countries summary">
+      <div id="country-counter" aria-live="polite" title="Unique countries visited">
+        <span id="country-count">0</span>
+      </div>
+      <div id="flag-row" aria-label="Visited country flags"></div>
+    </section>
+
+    <!-- Map card -->
+    <section class="map-card">
+      <div id="chartdiv">
+        <div id="map-label" class="map-label"></div>
+      </div>
+    </section>
+  </main>
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XS4SDLL7E1"></script>
