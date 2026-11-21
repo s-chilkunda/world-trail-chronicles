@@ -38,6 +38,7 @@
     const addVisitBtn = document.getElementById('add-visit');
     const yearSlider = document.getElementById('year-slider');
     const yearLabel = document.getElementById('year-label');
+    const countryCountEl = document.getElementById('country-count');
     // Overlay element for showing country names during playback on top of the map
     const mapLabel = document.getElementById('map-label');
     const playButton = document.getElementById('play-button');
@@ -168,6 +169,11 @@
         } else if (record.year === year) {
           visitedCurrent.push(record.country);
         }
+      }
+      // Update the unique countries counter up to the currently selected year
+      if (countryCountEl) {
+        const uniqueCountries = new Set([...visitedPast, ...visitedCurrent]);
+        countryCountEl.textContent = uniqueCountries.size;
       }
       // Update the overlay with the names of countries visited in the selected year.  This occurs
       // regardless of whether the map has been fully initialised, so that names appear as soon

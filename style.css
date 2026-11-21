@@ -193,3 +193,25 @@ h1 {
 #visit-list td button:hover {
   opacity: 0.85;
 }
+
+/* Unique countries counter pinned to the top right */
+#country-counter {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.92);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+#country-count {
+  color: #007BFF;
+  font-size: 16px;
+  margin-left: 4px;
+}
