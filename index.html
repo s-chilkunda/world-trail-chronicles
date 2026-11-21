@@ -19,6 +19,10 @@
   <main class="app-shell">
     <header class="app-header">
       <h1>Time Trails</h1>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Switch to dark mode" title="Toggle dark mode">
+        <span id="theme-icon" aria-hidden="true">🌙</span>
+        <span id="theme-text">Dark</span>
+      </button>
     </header>
 
     <!-- Timeline controls card -->
@@ -38,7 +42,7 @@
       </div>
     </section>
 
-    <!-- Counter and row of flags for every unique country visited up to the selected year -->
+    <!-- Counter and row of clickable flags for every unique country visited up to the selected year -->
     <section class="flag-bar" aria-label="Visited countries summary">
       <div id="country-counter" aria-live="polite" title="Unique countries visited">
         <span id="country-count">0</span>
@@ -48,8 +52,30 @@
 
     <!-- Map card -->
     <section class="map-card">
-      <div id="chartdiv">
+      <div id="chartdiv" class="globe-mode">
+        <!-- Overlay label for countries visited in the active year -->
         <div id="map-label" class="map-label"></div>
+
+        <!-- 3D Globe vs. Flat Map toggle -->
+        <div class="map-mode-toggle" role="group" aria-label="Map projection">
+          <button type="button" id="flat-mode-btn" class="mode-btn" aria-pressed="false">Flat</button>
+          <button type="button" id="globe-mode-btn" class="mode-btn active" aria-pressed="true">3D Globe</button>
+        </div>
+
+        <!-- Visit history popover shown when clicking a flag or visited country -->
+        <div id="visit-popover" class="visit-popover" role="dialog" aria-label="Country visit history" hidden>
+          <div class="popover-header">
+            <div class="popover-title-wrap">
+              <img id="popover-flag" class="popover-flag" alt="">
+              <div>
+                <h2 id="popover-country"></h2>
+                <p id="popover-subtitle"></p>
+              </div>
+            </div>
+            <button type="button" id="popover-close" class="popover-close" aria-label="Close visit history">×</button>
+          </div>
+          <div id="popover-years" class="popover-years"></div>
+        </div>
       </div>
     </section>
   </main>
