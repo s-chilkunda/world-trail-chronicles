@@ -587,6 +587,9 @@
       const palette = MAP_THEMES[currentTheme];
 
       root = am5.Root.new('chartdiv');
+      if (root._logo) {
+        root._logo.dispose();
+      }
       root.setThemes([am5themes_Animated.new(root)]);
 
       chart = root.container.children.push(am5map.MapChart.new(root, {
